@@ -1,0 +1,58 @@
+CREATE DATABASE bus_reservation;
+USE bus_reservation;
+
+CREATE TABLE buses (
+    bus_id INT PRIMARY KEY AUTO_INCREMENT,
+    bus_name VARCHAR(100) NOT NULL,
+    source VARCHAR(100) NOT NULL,
+    destination VARCHAR(100) NOT NULL,
+    travel_date DATE NOT NULL,
+    departure_time TIME NOT NULL,
+    total_seats INT NOT NULL,
+    available_seats INT NOT NULL,
+    fare DECIMAL(10,2) NOT NULL,
+    CHECK (total_seats > 0),
+    CHECK (available_seats >= 0),
+    CHECK (available_seats <= total_seats),
+    CHECK (fare >= 0)
+);
+
+CREATE TABLE passengers (
+    passenger_id INT PRIMARY KEY AUTO_INCREMENT,
+    passenger_name VARCHAR(100) NOT NULL,
+    age INT NOT NULL,
+    gender VARCHAR(20),
+    phone VARCHAR(15) NOT NULL,
+    email VARCHAR(100),
+    CHECK (age > 0)
+);
+
+CREATE TABLE bookings (
+    booking_id INT PRIMARY KEY AUTO_INCREMENT,
+    passenger_id INT NOT NULL,
+    bus_id INT NOT NULL,
+    seats_booked INT NOT NULL,
+    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED',
+    FOREIGN KEY (passenger_id)
+        REFERENCES passengers(passenger_id),
+    FOREIGN KEY (bus_id)
+        REFERENCES buses(bus_id),
+    CHECK (seats_booked > 0),
+    CHECK (status IN ('CONFIRMED', 'CANCELLED'))
+);
+
+-- Sample buses
+INSERT INTO buses
+(bus_name, source, destination, travel_date,
+ departure_time, total_seats, available_seats, fare)
+VALUES
+('KPN Express', 'Chennai', 'Salem', '2026-11-10',
+ '08:00:00', 40, 40, 550.00),
+('SETC Express', 'Chennai', 'Coimbatore', '2026-11-10',
+ '21:00:00', 45, 45, 700.00),
+('City Travels', 'Salem', 'Chennai', '2026-11-11',
+ '09:30:00', 35, 35, 500.00);
+ 
+ -- 1: Lock the bus row
+ SELECT available_seats FROM buses WHERE bus_id = ? FOR UPDATE
