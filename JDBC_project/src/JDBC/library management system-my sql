@@ -1,0 +1,54 @@
+CREATE DATABASE library_db;
+USE library_db;
+
+-- 1. Books table
+CREATE TABLE books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(150) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    category VARCHAR(50),
+    quantity INT NOT NULL DEFAULT 1,
+    available_quantity INT NOT NULL DEFAULT 1,
+    CHECK (quantity >= 0),
+    CHECK (available_quantity >= 0),
+    CHECK (available_quantity <= quantity)
+);
+
+-- 2. Members table
+CREATE TABLE members (
+    member_id INT PRIMARY KEY AUTO_INCREMENT,
+    member_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(15)
+);
+
+-- 3. Book issues table
+CREATE TABLE book_issues (
+    issue_id INT PRIMARY KEY AUTO_INCREMENT,
+    book_id INT NOT NULL,
+    member_id INT NOT NULL,
+    issue_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    return_date DATE DEFAULT NULL,
+    fine DECIMAL(10,2) DEFAULT 0.00,
+    status VARCHAR(20) NOT NULL DEFAULT 'ISSUED',
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (member_id) REFERENCES members(member_id),
+    CHECK (status IN ('ISSUED', 'RETURNED')),
+    CHECK (fine >= 0),
+    CHECK (due_date >= issue_date)
+);
+
+-- Sample books
+INSERT INTO books
+(title, author, category, quantity, available_quantity)
+VALUES
+('Java Programming', 'Herbert Schildt', 'Programming', 5, 5),
+('Effective Java', 'Joshua Bloch', 'Programming', 3, 3),
+('Database Systems', 'Raghu Ramakrishnan', 'Database', 4, 4);
+
+-- Sample members
+INSERT INTO members (member_name, email, phone)
+VALUES
+('Prabakaran', 'prabakaran@example.com', '9876543210'),
+('Arun', 'arun@example.com', '9876501234');
